@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Netflix - Home</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="menu.css"> <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="nav-right">
+            <img src="logo.png" alt="Netflix" class="logo">
+            <ul class="nav-links">
+                <li class="active">Home</li>
+                <li>TV Shows</li>
+                <li>Movies</li>
+                <li>Games</li>
+                <li>New & Popular</li>
+                <li>My List</li>
+                <li>Browse by Languages</li>
+            </ul>
+        </div>
+
+        <div class="nav-left">
+            <i class="fas fa-search nav-icon" style="margin-left: 15px;"></i>
+            <i class="fas fa-bell nav-icon" style="margin-left: 15px;"></i>
+            <div class="profile-dropdown">
+                <img src="profile1.png" alt="Profile" id="navAvatar" class="nav-avatar">
+                <span class="caret"></span>
+            </div>
+        </div>
+    </nav>
+
+    <header class="hero-banner">
+        <div class="hero-content">
+            <div class="hero-badge"><i class="fas fa-gamepad"></i> משחק נייד חדש</div>
+            <h2 class="hero-title">סוליטר נטפליקס</h2>
+            <p class="hero-desc">סדר את הקלפים בסדר יורד ובצבעים מתחלפים. מיינו את כל החפיסות מהאס למלך - המשחק הנצחי שכולנו אוהבים, עכשיו בעיצוב נטפליקס מרהיב.</p>
+            <div class="hero-buttons">
+                <button class="btn-play"><i class="fas fa-play"></i> שחק עכשיו</button>
+                <button class="btn-info"><i class="fas fa-info-circle"></i> מידע נוסף</button>
+            </div>
+        </div>
+    </header>
+
+    <main class="main-feed-container">
+        
+        <section class="controls-section">
+            <div class="search-wrapper">
+                <input type="text" id="searchInput" placeholder="חפש בקטלוג לפי שם או תיאור...">
+                <i class="fas fa-search" style="color: #888;"></i>
+            </div>
+            
+            <div class="alphabet-filter">
+                <span style="color: #aaa; margin-left: 10px; font-size: 0.9rem;">סנן קטלוג לפי אות ראשונה:</span>
+                <button class="alphabet-btn active" data-letter="all">הכל</button>
+            </div>
+        </section>
+
+        <section id="searchResultsSection" class="search-results-section">
+            <h3 class="category-title" id="searchResultsTitle" style="color: #e50914;">תוצאות חיפוש</h3>
+            <div class="feed-row" id="searchResultsGrid"></div>
+        </section>
+
+        <section style="margin-bottom: 40px;">
+            <h3 class="category-title" id="rowTitle">המשך צפייה</h3>
+            <div class="feed-row" id="userFeedGrid"></div>
+        </section>
+
+        <section>
+            <h3 class="category-title">הקטלוג המלא</h3>
+            <div class="feed-row" id="allCatalogGrid"></div>
+        </section>
+    </main>
+
+    <script>
+        let catalog = [];
+        let activeUser = { name: '', consumed: [] };
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const currentUserKey = urlParams.get('user') || 'Ayala';
+        const currentAvatar = urlParams.get('avatar') || 'profile1.png';
+
+        document.getElementById('navAvatar').src = currentAvatar;
+
+        async function loadDashboardData() {
+            try {
+                const response = await fetch('/api/movies');
+                const data = await response.json();
+                
+                catalog = data.catalog;
+                activeUser = data.personas[currentUserKey] || data.personas['Ayala'];
+
+                document.getElementById('rowTitle').textContent = `המשך צפייה עבור ${activeUser.name}`;
+
+                initAlphabetFilters();
+                initGrids();
+
+            } catch (error) {
+                console.error("שגיאה בטעינת נתונים מהשרת:", error);
+            }
+        }
+
+        function initAlphabetFilters() {
+            const alphabetContainer = document.querySelector('.alphabet-filter');
+            const letters = [...new Set(catalog.map(item => item.title.charAt(0)))].sort();
+            
+            letters.forEach(letter => {
+                const btn = document.createElement('button');
+                btn.className = 'alphabet-btn';
+                btn.textContent = letter;
+                btn.setAttribute('data-letter', letter);
+                alphabetContainer.appendChild(btn);
+            });
+        }
+
+        function createMovieCardHTML(item) {
+            return `
+                <div class="movie-card" data-id="${item.id}">
+                    <div class="movie-image-container">
+                        <img src="${item.image}" alt="${item.title}" class="movie-img">
+                        <div class="image-overlay">
+                            <i class="fas fa-play-circle"></i>
+                        </div>
+                    </div>
+                    <div class="movie-info">
+                        <div class="movie-title">${item.title}</div>
+                        <div class="movie-desc">${item.desc}</div>
+                        <div class="card-actions">
+                            <button class="like-btn ${item.liked ? 'liked' : ''}" onclick="toggleLike(${item.id})">
+                                <i class="fas fa-heart"></i>
+                                <span>לייק</span>
+                            </button>
+                            <span class="likes-count"><span class="count-val">${item.likes}</span> לייקים</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function initGrids() {
+            const userFeedGrid = document.getElementById('userFeedGrid');
+            const allCatalogGrid = document.getElementById('allCatalogGrid');
+
+            const userItems = catalog.filter(item => activeUser.consumed.includes(item.id));
+            userFeedGrid.innerHTML = userItems.map(item => createMovieCardHTML(item)).join('');
+
+            allCatalogGrid.innerHTML = catalog.map(item => createMovieCardHTML(item)).join('');
+        }
+
+        function handleFilter() {
+            const searchInput = document.getElementById('searchInput');
+            const query = searchInput.value.trim().toLowerCase();
+            
+            const activeLetterBtn = document.querySelector('.alphabet-btn.active');
+            const letter = activeLetterBtn ? activeLetterBtn.getAttribute('data-letter') : 'all';
+
+            const resultsSection = document.getElementById('searchResultsSection');
+            const resultsGrid = document.getElementById('searchResultsGrid');
+
+            if (query === '' && letter === 'all') {
+                resultsSection.style.display = 'none';
+                return;
+            }
+
+            let filtered = catalog;
+
+            if (letter !== 'all') {
+                filtered = filtered.filter(item => item.title.startsWith(letter));
+            }
+
+            if (query !== '') {
+                filtered = filtered.filter(item => 
+                    item.title.toLowerCase().includes(query) || 
+                    item.desc.toLowerCase().includes(query)
+                );
+            }
+
+            resultsSection.style.display = 'block';
+            if (filtered.length === 0) {
+                resultsGrid.innerHTML = `<p style="grid-column: 1/-1; text-align: right; color: #777; padding: 15px 0;">לא נמצאו סרטים התואמים לחיפוש הנוכחי.</p>`;
+            } else {
+                resultsGrid.innerHTML = filtered.map(item => createMovieCardHTML(item)).join('');
+            }
+        }
+
+        window.toggleLike = function(movieId) {
+            const item = catalog.find(m => m.id === movieId);
+            if (!item) return;
+
+            if (item.liked) {
+                item.liked = false;
+                item.likes--;
+            } else {
+                item.liked = true;
+                item.likes++;
+            }
+
+            const cards = document.querySelectorAll(`.movie-card[data-id="${movieId}"]`);
+            cards.forEach(card => {
+                const btn = card.querySelector('.like-btn');
+                const countVal = card.querySelector('.count-val');
+                
+                if (item.liked) {
+                    btn.classList.add('liked');
+                } else {
+                    btn.classList.remove('liked');
+                }
+                countVal.textContent = item.likes;
+            });
+        };
+
+        document.getElementById('searchInput').addEventListener('input', handleFilter);
+
+        const alphabetContainer = document.querySelector('.alphabet-filter');
+        alphabetContainer.addEventListener('click', function(e) {
+            if (e.target.classList.contains('alphabet-btn')) {
+                document.querySelectorAll('.alphabet-btn').forEach(b => b.classList.remove('active'));
+                e.target.classList.add('active');
+                handleFilter();
+            }
+        });
+
+        loadDashboardData();
+    </script>
+</body>
+</html>

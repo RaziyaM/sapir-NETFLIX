@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Netflix - Who's Watching?</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="main-container">
+        <h1>?מי צופה</h1>
+        
+        <div class="profile-list" id="profileList">
+            
+            <div class="profile-item" data-username="Ayala" data-avatar="profile1.png">
+                <div class="avatar-box" style="background-color: #0074e4;">
+                    <img src="profile1.png" alt="Ayala">
+                </div>
+                <div class="profile-name">Ayala</div>
+            </div>
+
+            <div class="profile-item" data-username="Alon" data-avatar="profile2.png">
+                <div class="avatar-box" style="background-color: #e50914;">
+                    <img src="profile2.png" alt="Alon">
+                </div>
+                <div class="profile-name">Alon</div>
+            </div>
+
+            <div class="profile-item" data-username="Adam" data-avatar="profile3.png">
+                <div class="avatar-box" style="background-color: #800080;">
+                    <img src="profile3.png" alt="Adam">
+                </div>
+                <div class="profile-name">Adam</div>
+            </div>
+
+            <div class="profile-item" data-username="Noa" data-avatar="profile4.png">
+                <div class="avatar-box" style="background-color: #2b5d61;">
+                    <img src="profile4.png" alt="Noa">
+                </div>
+                <div class="profile-name">Noa</div>
+            </div>
+
+            <div class="profile-item" data-username="Achia" data-avatar="profile5.png">
+                <div class="avatar-box" style="background-color: #e87c03;">
+                    <img src="profile5.png" alt="Achia">
+                </div>
+                <div class="profile-name">Achia</div>
+            </div>
+
+        </div>
+
+        <button class="manage-profiles-btn">ניהול פרופילים</button>
+    </div>
+
+    <script>
+        document.querySelectorAll('.profile-item').forEach(item => {
+            item.addEventListener('click', function() {
+                const username = this.getAttribute('data-username');
+                const avatar = this.getAttribute('data-avatar');
+                window.location.href = `menu.html?user=${encodeURIComponent(username)}&avatar=${encodeURIComponent(avatar)}`;
+            });
+        });
+    </script>
+</body>
+</html>

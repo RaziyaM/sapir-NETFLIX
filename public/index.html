@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Netflix login</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .error-message {
+            color: #e87c03;
+            font-size: 0.85rem;
+            display: block;
+            margin-top: -10px;
+            margin-bottom: 15px;
+            text-align: right;
+        }
+        .input-group {
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+
+    <main class="hero-section">
+        <div class="login-box">
+            <h1>כניסה לחשבון</h1>
+            <form id="loginForm" novalidate>
+                <div class="input-group">
+                    <input type="text" id="emailOrPhone" placeholder="אימייל או מספר נייד" class="input-field">
+                    <span id="emailOrPhoneError" class="error-message"></span>
+                </div>
+                
+                <div class="input-group">
+                    <input type="password" id="password" placeholder="סיסמה" class="input-field">
+                    <span id="passwordError" class="error-message"></span>
+                </div>
+                
+                <button type="submit" class="login-btn">כניסה</button>
+                
+                <div class="or-separator">או</div>
+                
+                <button type="button" class="code-btn">כניסה עם קוד</button>
+                
+                <a href="#" class="forgot-link">שכחת את הסיסמה?</a>
+                
+                <div class="remember-me">
+                    <input type="checkbox" id="remember">
+                    <label for="remember">זכרו אותי</label>
+                </div>
+
+                <p class="signup-text">
+                    עוד לא ב-Netflix? <a href="#">זה הזמן להירשם.</a>
+                </p>
+            </form>
+        </div>
+    </main>
+
+<script>
+        // הוספנו async כדי לאפשר שליחה לשרת
+        document.getElementById('loginForm').addEventListener('submit', async function(event) {
+            event.preventDefault();
+
+            const emailOrPhoneInput = document.getElementById('emailOrPhone');
+            const passwordInput = document.getElementById('password');
+            const emailOrPhoneError = document.getElementById('emailOrPhoneError');
+            const passwordError = document.getElementById('passwordError');
+
+            emailOrPhoneError.textContent = '';
+            passwordError.textContent = '';
+
+            let isValid = true;
+
+            const userValue = emailOrPhoneInput.value.trim();
+            if (userValue === '') {
+                emailOrPhoneError.textContent = 'נא להזין אימייל או מספר טלפון נייד תקינים.';
+                isValid = false;
+            } else {
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                const cleanPhone = userValue.replace(/[-+ ]/g, '');
+                const phoneRegex = /^[0-9]{9,15}$/;
+
+                if (!emailRegex.test(userValue) && !phoneRegex.test(cleanPhone)) {
+                    emailOrPhoneError.textContent = 'נא להזין אימייל או מספר טלפון נייד תקינים.';
+                    isValid = false;
+                }
+            }
+
+            const passwordValue = passwordInput.value;
+            if (passwordValue === '') {
+                passwordError.textContent = 'הסיסמה חייבת להכיל בין 4 ל-60 תווים.';
+                isValid = false;
+            } else if (passwordValue.length < 4 || passwordValue.length > 60) {
+                passwordError.textContent = 'הסיסמה חייבת להכיל בין 4 ל-60 תווים.';
+                isValid = false;
+            }
+
+            // אם הוולידציה שלך נכשלה - עוצרים ולא פונים לשרת
+            if (!isValid) return;
+
+            // --- הצינור לשרת (במקום ה-href המיידי) ---
+            try {
+                const response = await fetch('/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: userValue, password: passwordValue })
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.success) {
+                    // השרת אישר - רק אז עוברים עמוד
+                    window.location.href = 'profiles.html';
+                } else {
+                    // השרת החזיר שגיאה (נתונים לא נכונים) - מציגים אותה בלי לרענן
+                    emailOrPhoneError.textContent = data.message || 'שם משתמש או סיסמה שגויים';
+                }
+            } catch (error) {
+                emailOrPhoneError.textContent = 'שגיאה בחיבור לשרת.';
+            }
+        });
+    </script>
+</body>
+</html>
