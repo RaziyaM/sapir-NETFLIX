@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Netflix - Home</title>
+    <link rel="stylesheet" href="/style.css">
+    <link rel="stylesheet" href="/menu.css"> 
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="nav-right">
+            <img src="/images/logo.png" alt="Netflix" class="logo">
+            <ul class="nav-links">
+                <li class="active">Home</li>
+                <li>TV Shows</li>
+                <li>Movies</li>
+                <li>Games</li>
+                <li>New & Popular</li>
+                <li>My List</li>
+                <li>Browse by Languages</li>
+            </ul>
+        </div>
+        <div class="nav-left">
+            <i class="fas fa-search nav-icon" style="margin-left: 15px;"></i>
+            <i class="fas fa-bell nav-icon" style="margin-left: 15px;"></i>
+            <div class="profile-dropdown">
+                <img src="/images/<%= avatar %>" alt="Profile" id="navAvatar" class="nav-avatar">
+            </div>
+        </div>
+    </nav>
+
+    <header class="hero-banner">
+        <div class="hero-content">
+            <div class="hero-badge"><i class="fas fa-gamepad"></i> משחק נייד חדש</div>
+            <h2 class="hero-title">סוליטר נטפליקס</h2>
+            <p class="hero-desc">סדר את הקלפים בסדר יורד ובצבעים מתחלפים.</p>
+            <div class="hero-buttons">
+                <button class="btn-play"><i class="fas fa-play"></i> שחק עכשיו</button>
+            </div>
+        </div>
+    </header>
+
+    <main class="main-feed-container">
+        <section class="controls-section">
+            <div class="search-wrapper">
+                <input type="text" id="searchInput" placeholder="חפש בקטלוג...">
+            </div>
+        </section>
+
+        <section>
+            <h3 class="category-title" id="rowTitle">המשך צפייה עבור <%= username %></h3>
+            <div class="feed-row" id="userFeedGrid"></div>
+        </section>
+
+        <section>
+            <h3 class="category-title">הקטלוג המלא</h3>
+            <div class="feed-row" id="allCatalogGrid"></div>
+        </section>
+    </main>
+
+    <script>
+        let catalog = [];
+        // מקבלים את שם המשתמש מה-EJS
+        const currentUserKey = "<%= username %>";
+
+        async function loadDashboardData() {
+            try {
+                const response = await fetch('/api/data'); 
+                const data = await response.json();
+                catalog = data.catalog;
+                const activeUser = data.personas.find(u => u.username === currentUserKey) || data.personas[0];
+
+                const userFeedGrid = document.getElementById('userFeedGrid');
+                const allCatalogGrid = document.getElementById('allCatalogGrid');
+
+                // הצגת סרטים לכל אחד מהאזורים
+                const userItems = catalog.filter(item => activeUser.consumed.includes(item._id));
+                
+                userFeedGrid.innerHTML = userItems.map(item => createMovieCardHTML(item)).join('');
+                allCatalogGrid.innerHTML = catalog.map(item => createMovieCardHTML(item)).join('');
+            } catch (error) {
+                console.error("שגיאה בטעינת נתונים:", error);
+            }
+        }
+
+        function createMovieCardHTML(item) {
+            return `
+                <div class="movie-card" data-id="${item._id}">
+                    <div class="movie-image-container">
+                        <img src="${item.image}" alt="${item.title}" class="movie-img">
+                    </div>
+                    <div class="movie-info">
+                        <div class="movie-title">${item.title}</div>
+                    </div>
+                </div>
+            `;
+        }
+
+        loadDashboardData();
+    </script>
+</body>
+</html>
