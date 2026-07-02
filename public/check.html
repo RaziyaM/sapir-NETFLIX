@@ -93,7 +93,6 @@
         }
 
         function createMovieCardHTML(item) {
-            // שימוש ב-item._id בכל מקום במקום item.id
             return `
                 <div class="movie-card" data-id="${item._id}">
                     <div class="movie-image-container">
@@ -121,9 +120,7 @@
             userFeedGrid.innerHTML = userItems.map(item => createMovieCardHTML(item)).join('');
             allCatalogGrid.innerHTML = catalog.map(item => createMovieCardHTML(item)).join('');
         }
-        function initAlphabetFilters() {
-    console.log("פונקציית הסינון עדיין לא מוגדרת, אבל האתר ימשיך לעבוד");
-}
+
         window.toggleLike = function(movieId) {
             const item = catalog.find(m => m._id === movieId); // חיפוש לפי _id
             if (!item) return;

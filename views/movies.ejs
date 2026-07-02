@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>קטלוג סרטים</title>
+    <style>
+        .movie-card { border: 1px solid #ddd; padding: 15px; margin: 15px; border-radius: 8px; width: 300px; display: inline-block; vertical-align: top; }
+        .movie-card img { width: 100%; height: 200px; object-fit: cover; border-radius: 4px; }
+    </style>
+</head>
+<body>
+
+    <h1>קטלוג סרטים</h1>
+    <div class="movies-container">
+        <% movies.forEach(movie => { %>
+            <div class="movie-card">
+                <img src="<%= movie.image %>" alt="<%= movie.title %>">
+                
+                <h2><%= movie.title %></h2>
+                <p><%= movie.desc %></p>
+                <small><strong>לייקים:</strong> <%= movie.likes %></small>
+            </div>
+        <% }) %>
+    </div>
+
+    <h1>משתמשים ופעילות</h1>
+    <ul>
+        <% users.forEach(user => { %>
+            <li>
+                <strong><%= user.name %></strong> צפה ב-<%= user.consumed.length %> סרטים 
+                (מזהה סרטים: <%= user.consumed.join(', ') %>)
+            </li>
+        <% }) %>
+    </ul>
+
+<section style="margin-bottom: 30px; padding: 20px; background: #f4f4f4;">
+    <h2>הוסף סרט חדש לקטלוג</h2>
+    <form action="/api/movies/add" method="POST">
+        <input type="text" name="title" placeholder="שם הסרט" required>
+        <input type="text" name="desc" placeholder="תיאור">
+        <input type="text" name="image" placeholder="קישור לתמונה">
+        <button type="submit">הוסף סרט</button>
+    </form>
+</section>
+</body>
+</html>
