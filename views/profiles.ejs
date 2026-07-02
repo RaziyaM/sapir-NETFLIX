@@ -32,6 +32,7 @@
                 const avatar = this.getAttribute('data-avatar');
                 // מעבר לדף ה-menu (שגם אותו תצטרך להפוך ל-EJS בהמשך)
                 window.location.href = `/menu?user=${encodeURIComponent(username)}&avatar=${encodeURIComponent(avatar)}`;
+                
             });
         });
     </script>

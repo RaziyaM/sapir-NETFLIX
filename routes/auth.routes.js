@@ -19,4 +19,12 @@ router.get('/profiles', (req, res) => {
     res.render('profiles', { profiles: profiles });
 });
 
+router.get('/menu', (req, res) => {
+    const { user, avatar } = req.query;
+    res.render('menu', { 
+        username: user || 'Ayala', 
+        avatar: avatar || 'profile1.png' 
+    });
+});
+
 module.exports = router;
