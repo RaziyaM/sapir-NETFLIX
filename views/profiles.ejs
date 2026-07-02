@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Netflix - Who's Watching?</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+    <div class="main-container">
+        <h1>מי צופה?</h1>
+        
+        <div class="profile-list" id="profileList">
+            <% profiles.forEach(profile => { %>
+                <div class="profile-item" data-username="<%= profile.name %>" data-avatar="<%= profile.avatar %>">
+                    <div class="avatar-box" style="background-color: <%= profile.color %>;">
+                        <img src="/<%= profile.avatar %>" alt="<%= profile.name %>">
+                    </div>
+                    <div class="profile-name"><%= profile.name %></div>
+                </div>
+            <% }); %>
+        </div>
+
+        <button class="manage-profiles-btn">ניהול פרופילים</button>
+    </div>
+
+    <script>
+        document.querySelectorAll('.profile-item').forEach(item => {
+            item.addEventListener('click', function() {
+                const username = this.getAttribute('data-username');
+                const avatar = this.getAttribute('data-avatar');
+                // מעבר לדף ה-menu (שגם אותו תצטרך להפוך ל-EJS בהמשך)
+                window.location.href = `/menu?user=${encodeURIComponent(username)}&avatar=${encodeURIComponent(avatar)}`;
+            });
+        });
+    </script>
+</body>
+</html>

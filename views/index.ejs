@@ -109,7 +109,7 @@
 
                 if (response.ok && data.success) {
                     // השרת אישר - רק אז עוברים עמוד
-                    window.location.href = 'profiles.html';
+                    window.location.href = '/profiles';
                 } else {
                     // השרת החזיר שגיאה (נתונים לא נכונים) - מציגים אותה בלי לרענן
                     emailOrPhoneError.textContent = data.message || 'שם משתמש או סיסמה שגויים';
